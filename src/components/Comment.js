@@ -2,11 +2,17 @@ import { useState, useRef, useEffect } from "react";
 import Action from "./Action";
 import { ReactComponent as DownArrow } from "../assets/down-arrow.svg";
 import { ReactComponent as UpArrow } from "../assets/up-arrow.svg";
+import { ReactComponent as Like } from "../assets/like.svg";
+import { ReactComponent as Dislike } from "../assets/dislike.svg";
 
 const Comment = ({
   handleInsertNode,
   handleEditNode,
   handleDeleteNode,
+  handleLikeNode,
+  handleDislikeNode,
+  user,
+  // width,
   comment,
 }) => {
   const [input, setInput] = useState("");
@@ -14,6 +20,7 @@ const Comment = ({
   const [showInput, setShowInput] = useState(false);
   const [expand, setExpand] = useState(false);
   const inputRef = useRef(null);
+
 
   useEffect(() => {
     inputRef?.current?.focus();
@@ -45,10 +52,10 @@ const Comment = ({
 
   return (
     <div>
-      <div className={comment.id === 1 ? "inputContainer" : "commentContainer"}>
+      <div className={comment.id === 1 ? "inputContainer" : "commentContainer"} >
         {comment.id === 1 ? (
           <>
-            <input
+            <textarea
               type="text"
               className="inputContainer__input first_input"
               autoFocus
@@ -65,6 +72,7 @@ const Comment = ({
           </>
         ) : (
           <>
+            <h3>{comment.authorName}</h3>
             <span
               contentEditable={editMode}
               suppressContentEditableWarning={editMode}
@@ -98,6 +106,58 @@ const Comment = ({
                     className="reply"
                     type={
                       <>
+                        {comment.likers &&
+                          <>
+                            {
+                              Object.entries(comment.likers).find(([key, value]) => key === user && value) ? (
+                                <>
+                                  <Like width="15px" height="15px" fill="black" />
+                                </>
+                              ) : (
+                                <>
+                                  <Like width="15px" height="15px" />
+                                </>
+                              )
+                            }
+                          </>
+                        }
+                        {" "+comment.likes}
+                      </>
+                    }
+                    handleClick={() => {
+                      handleLikeNode(comment.id);
+                    }}
+                  />
+                  <Action
+                    className="reply"
+                    type={
+                      <>
+                        {comment.dislikers &&
+                          <>
+                            {
+                              Object.entries(comment.dislikers).find(([key, value]) => key === user && value) ? (
+                                <>
+                                  <Dislike width="15px" height="15px" fill="black" />
+                                </>
+                              ) : (
+                                <>
+                                  <Dislike width="15px" height="15px" />
+                                </>
+                              )
+                            }
+                          </>
+                        }
+                        {" "+comment.dislikes}
+                      </>
+                    }
+                    handleClick={() => {
+                      handleDislikeNode(comment.id);
+                    }}
+                  />
+                  <Action
+                    className="reply"
+                    type={
+                      <>
                         {expand ? (
                           <UpArrow width="10px" height="10px" />
                         ) : (
@@ -108,18 +168,22 @@ const Comment = ({
                     }
                     handleClick={handleNewComment}
                   />
-                  <Action
-                    className="reply"
-                    type="EDIT"
-                    handleClick={() => {
-                      setEditMode(true);
-                    }}
-                  />
-                  <Action
-                    className="reply"
-                    type="DELETE"
-                    handleClick={handleDelete}
-                  />
+                  {comment.author === user && (
+                    <>
+                      <Action
+                        className="reply"
+                        type="EDIT"
+                        handleClick={() => {
+                          setEditMode(true);
+                        }}
+                      />
+                      <Action
+                        className="reply"
+                        type="DELETE"
+                        handleClick={handleDelete}
+                      />
+                    </>
+                  )}
                 </>
               )}
             </div>
@@ -130,7 +194,7 @@ const Comment = ({
       <div style={{ display: expand ? "block" : "none", paddingLeft: 25 }}>
         {showInput && (
           <div className="inputContainer">
-            <input
+            <textarea
               type="text"
               className="inputContainer__input"
               autoFocus
@@ -155,6 +219,10 @@ const Comment = ({
               handleInsertNode={handleInsertNode}
               handleEditNode={handleEditNode}
               handleDeleteNode={handleDeleteNode}
+              handleLikeNode={handleLikeNode}
+              handleDislikeNode={handleDislikeNode}
+              user={user}
+              // width={width-25}
               comment={cmnt}
             />
           );

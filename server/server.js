@@ -8,8 +8,10 @@ app.use(cors());
 app.use(express.json())
 
 // Route to get all posts
-app.get("/api/get", (req, res) => {
-    db.query("SELECT * FROM comments", (err, result) => {
+app.post("/api/get", (req, res) => {
+    let id = req.body.id;
+    
+    db.query("SELECT commentsjson FROM comments WHERE id = ?",[id], (err, result) => {
         if (err) {
             console.log(err)
         }
@@ -19,10 +21,39 @@ app.get("/api/get", (req, res) => {
 
 // Route for creating the post
 app.post('/api/create', (req, res) => {
+    let id = req.body.id;
+    let jsonbody = req.body.content;
 
-    let jsonbody = req.body;
-    
-    db.query("INSERT INTO comments (commentsjson) VALUES (?)", [JSON.stringify(jsonbody)], (err, result) => {
+    db.query("INSERT INTO comments (id, commentsjson) VALUES (?, ?)", [id, JSON.stringify(jsonbody)], (err, result) => {
+        if (err) {
+            console.log(err)
+            res.send(err)
+            return
+        }
+        console.log(result)
+        db.query("SELECT commentsjson FROM comments WHERE id = ?",[id], (err, result) => {
+            if (err) {
+                console.log(err)
+            }
+            res.send(result)
+        });
+    });
+})
+
+app.listen(PORT, () => {
+    console.log(`Server is running on ${PORT}`)
+})
+
+
+// api to initialize an empty tree with a random id
+app.post('/api/init', (req, res) => {
+    let id = req.body.id;
+    let jsonbody = {
+        "id": 1,
+        "items": []
+    };
+
+    db.query("INSERT INTO comments (id, commentsjson) VALUES (?, ?)", [id, JSON.stringify(jsonbody)], (err, result) => {
         if (err) {
             console.log(err)
             res.send(err)
@@ -32,6 +63,28 @@ app.post('/api/create', (req, res) => {
     });
 })
 
-app.listen(PORT, () => {
-    console.log(`Server is running on ${PORT}`)
+// api to create a new user
+app.post('/api/createuser', (req, res) => {
+    let name = req.body.name;
+    let token = req.body.token;
+
+    db.query("INSERT INTO users (token, name) VALUES (?, ?)", [token, name], (err, result) => {
+        if (err) {
+            console.log(err)
+        }
+        res.send(result)
+    });
 })
+
+// api to return name from token
+app.post('/api/getname', (req, res) => {
+    let token = req.body.token;
+
+    db.query("SELECT name FROM users WHERE token = ?",[token], (err, result) => {
+        if (err) {
+            console.log(err)
+        }
+        res.send(result)
+    });
+})
+
