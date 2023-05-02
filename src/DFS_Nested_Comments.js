@@ -23,18 +23,26 @@ const DFS_Nested_Comments = (props) => {
       });
   }, []);
 
-  const { insertNode, editNode, deleteNode, likeNode, dislikeNode} = useNode();
+  const { insertNode, editNode, deleteNode, likeNode, dislikeNode } = useNode();
 
   const handleInsertNode = async (folderId, item) => {
+    let email = props.email;
     let authtoken = props.user;
+    let name = "";
     const response1 = await axios
-      .post("http://localhost:3002/api/getname", {
-        token: authtoken
+      .get("https://datafoundation.iiit.ac.in/api/detokn?token="+authtoken)
+      .then(res => {
+        let f_name = res?.data?.data?.first_name;
+        let l_name = res?.data?.data?.last_name;
+        name = f_name + " " + l_name;
       })
-    const authName = response1.data[0].name;
-    console.log(response1.data[0].name);
-    let commentsData1 = commentsData
-    const finalStructure = insertNode(commentsData1, folderId, item, authtoken, authName);
+      .catch(err => {
+        console.log(err);
+      });
+    const authName = name;
+    const authEmail = email;
+    let commentsData1 = JSON.parse(JSON.stringify(commentsData));
+    const finalStructure = insertNode(commentsData1, folderId, item, authtoken, authName, authEmail);
     console.log(finalStructure);
     console.log(commentsData)
     const response2 = await axios
@@ -42,25 +50,23 @@ const DFS_Nested_Comments = (props) => {
         id: props.ForumID,
         content: finalStructure
       })
-      .then(res=>{
-        console.log(res)
-        // setCommentsData(res.data.data[res.data.data.length-1]);
+      .then(res => {
+        console.log(JSON.parse(res.data[res.data.length - 1].commentsjson))
+        setCommentsData(JSON.parse(res.data[res.data.length - 1].commentsjson));
       })
-    // reload page
-    // window.location.reload();
   };
 
   const handleEditNode = (folderId, value) => {
-    const finalStructure = editNode(commentsData, folderId, value);
+    let commentsData1 = JSON.parse(JSON.stringify(commentsData));
+    const finalStructure = editNode(commentsData1, folderId, value);
     console.log(finalStructure);
-    console.log(commentsData)
     axios
       .post("http://localhost:3002/api/create", {
         id: props.ForumID,
         content: finalStructure
       })
       .then((res) => {
-        setCommentsData(finalStructure);
+        setCommentsData(JSON.parse(res.data[res.data.length - 1].commentsjson));
         console.log(res);
       }
       )
@@ -71,15 +77,15 @@ const DFS_Nested_Comments = (props) => {
   };
 
   const handleDeleteNode = (folderId) => {
-    const finalStructure = deleteNode(commentsData, folderId);
-    const temp = { ...finalStructure };
+    let commentsData1 = JSON.parse(JSON.stringify(commentsData));
+    const finalStructure = deleteNode(commentsData1, folderId);
     axios
       .post("http://localhost:3002/api/create", {
         id: props.ForumID,
         content: finalStructure
       })
       .then((res) => {
-        setCommentsData(temp);
+        setCommentsData(JSON.parse(res.data[res.data.length - 1].commentsjson));
         console.log(res);
       }
       )
@@ -90,8 +96,9 @@ const DFS_Nested_Comments = (props) => {
   };
 
   const handleLikeNode = (folderId) => {
-    let authtoken = props.user
-    const finalStructure = likeNode(commentsData, folderId, authtoken);
+    let authemail = props.email
+    let commentsData1 = JSON.parse(JSON.stringify(commentsData));
+    const finalStructure = likeNode(commentsData1, folderId, authemail);
     console.log(finalStructure);
     axios
       .post("http://localhost:3002/api/create", {
@@ -99,7 +106,7 @@ const DFS_Nested_Comments = (props) => {
         content: finalStructure
       })
       .then((res) => {
-        setCommentsData(finalStructure);
+        setCommentsData(JSON.parse(res.data[res.data.length - 1].commentsjson));
         console.log(res);
       }
       )
@@ -110,8 +117,9 @@ const DFS_Nested_Comments = (props) => {
   };
 
   const handleDislikeNode = (folderId) => {
-    let authtoken = props.user
-    const finalStructure = dislikeNode(commentsData, folderId, authtoken);
+    let authemail = props.email
+    let commentsData1 = JSON.parse(JSON.stringify(commentsData));
+    const finalStructure = dislikeNode(commentsData1, folderId, authemail);
     console.log(finalStructure);
     axios
       .post("http://localhost:3002/api/create", {
@@ -119,7 +127,7 @@ const DFS_Nested_Comments = (props) => {
         content: finalStructure
       })
       .then((res) => {
-        setCommentsData(finalStructure);
+        setCommentsData(JSON.parse(res.data[res.data.length - 1].commentsjson));
         console.log(res);
       }
       )
@@ -138,8 +146,8 @@ const DFS_Nested_Comments = (props) => {
           handleDeleteNode={handleDeleteNode}
           handleLikeNode={handleLikeNode}
           handleDislikeNode={handleDislikeNode}
-          user = {props.user}
-          // width = {1000}
+          user={props.user}
+          email={props.email}
           comment={commentsData}
         />
       </div>

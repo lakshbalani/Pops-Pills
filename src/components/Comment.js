@@ -4,6 +4,7 @@ import { ReactComponent as DownArrow } from "../assets/down-arrow.svg";
 import { ReactComponent as UpArrow } from "../assets/up-arrow.svg";
 import { ReactComponent as Like } from "../assets/like.svg";
 import { ReactComponent as Dislike } from "../assets/dislike.svg";
+import axios from "axios";
 
 const Comment = ({
   handleInsertNode,
@@ -12,7 +13,7 @@ const Comment = ({
   handleLikeNode,
   handleDislikeNode,
   user,
-  // width,
+  email,
   comment,
 }) => {
   const [input, setInput] = useState("");
@@ -24,8 +25,9 @@ const Comment = ({
 
   useEffect(() => {
     inputRef?.current?.focus();
-    setExpand(true);
+    setExpand(comment.id === 1 | comment?.items?.length);
     setInput("");
+
   }, [editMode]);
 
   const handleNewComment = () => {
@@ -34,9 +36,23 @@ const Comment = ({
   };
 
   const onAddComment = () => {
+    if(user === "")
+    {
+      alert("Please Login to comment")
+      return;
+    }
     if (editMode) {
+      if(inputRef?.current?.innerText === "")
+      {
+        alert("Please type something");
+        return;
+      }
       handleEditNode(comment.id, inputRef?.current?.innerText);
     } else {
+      if (input === "") {
+        alert("Please type something");
+        return;
+      }
       setExpand(true);
       handleInsertNode(comment.id, input);
       setShowInput(false);
@@ -63,16 +79,18 @@ const Comment = ({
               onChange={(e) => setInput(e.target.value)}
               placeholder="type..."
             />
-
-            <Action
-              className="reply comment"
-              type="COMMENT"
-              handleClick={onAddComment}
-            />
+            <div className="comment-btn-container">
+              <Action
+                className="reply comment"
+                type="COMMENT"
+                handleClick={onAddComment}
+              />
+            </div>
           </>
         ) : (
           <>
-            <h3>{comment.authorName}</h3>
+            <b>{comment.authorName}</b>
+            <br></br>
             <span
               contentEditable={editMode}
               suppressContentEditableWarning={editMode}
@@ -109,7 +127,7 @@ const Comment = ({
                         {comment.likers &&
                           <>
                             {
-                              Object.entries(comment.likers).find(([key, value]) => key === user && value) ? (
+                              Object.entries(comment.likers).find(([key, value]) => key === email && value) ? (
                                 <>
                                   <Like width="15px" height="15px" fill="black" />
                                 </>
@@ -121,7 +139,7 @@ const Comment = ({
                             }
                           </>
                         }
-                        {" "+comment.likes}
+                        {" " + comment.likes}
                       </>
                     }
                     handleClick={() => {
@@ -135,7 +153,7 @@ const Comment = ({
                         {comment.dislikers &&
                           <>
                             {
-                              Object.entries(comment.dislikers).find(([key, value]) => key === user && value) ? (
+                              Object.entries(comment.dislikers).find(([key, value]) => key === email && value) ? (
                                 <>
                                   <Dislike width="15px" height="15px" fill="black" />
                                 </>
@@ -147,7 +165,7 @@ const Comment = ({
                             }
                           </>
                         }
-                        {" "+comment.dislikes}
+                        {" " + comment.dislikes}
                       </>
                     }
                     handleClick={() => {
@@ -168,7 +186,7 @@ const Comment = ({
                     }
                     handleClick={handleNewComment}
                   />
-                  {comment.author === user && (
+                  {comment.authorEmail === email && (
                     <>
                       <Action
                         className="reply"
@@ -191,7 +209,7 @@ const Comment = ({
         )}
       </div>
 
-      <div style={{ display: expand ? "block" : "none", paddingLeft: 25 }}>
+      <div style={{ display: expand ? "block" : "none", paddingLeft: comment.id === 1 ? 0 : 25 }}>
         {showInput && (
           <div className="inputContainer">
             <textarea
@@ -222,7 +240,7 @@ const Comment = ({
               handleLikeNode={handleLikeNode}
               handleDislikeNode={handleDislikeNode}
               user={user}
-              // width={width-25}
+              email={email}
               comment={cmnt}
             />
           );

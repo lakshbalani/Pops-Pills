@@ -1,5 +1,5 @@
 const useNode = () => {
-  const insertNode = function (tree, commentId, item, authtoken, authname) {
+  const insertNode = function (tree, commentId, item, authtoken, authname, authemail) {
     if (tree.id === commentId) {
       tree.items.push({
         id: new Date().getTime(),
@@ -7,6 +7,7 @@ const useNode = () => {
         items: [],
         author: authtoken,
         authorName: authname,
+        authorEmail: authemail,
         likes: 0,
         dislikes: 0,
         likers  : {},
@@ -19,7 +20,7 @@ const useNode = () => {
 
     let latestNode = [];
     latestNode = tree.items.map((ob) => {
-      return insertNode(ob, commentId, item, authtoken, authname);
+      return insertNode(ob, commentId, item, authtoken, authname, authemail);
     });
 
     return { ...tree, items: latestNode };
@@ -42,55 +43,55 @@ const useNode = () => {
     return { ...tree };
   };
 
-  const likeNode = (tree, commentId, token) => {
+  const likeNode = (tree, commentId, email) => {
     if (tree.id === commentId) {
-      if(token in tree.likers){
-        if(tree.likers[token] === true) {
+      if(email in tree.likers){
+        if(tree.likers[email] === true) {
           tree.likes -= 1;
-          tree.likers[token]=false;
+          tree.likers[email]=false;
           return tree;
         }
       }
       tree.likes += 1;
-      tree.likers[token]=true;
-      if(token in tree.dislikers){
-        if(tree.dislikers[token] === true) {
+      tree.likers[email]=true;
+      if(email in tree.dislikers){
+        if(tree.dislikers[email] === true) {
           tree.dislikes -= 1;
-          tree.dislikers[token]=false;
+          tree.dislikers[email]=false;
         }
       }
       return tree;
     }
 
     tree.items.map((ob) => {
-      return likeNode(ob, commentId, token);
+      return likeNode(ob, commentId, email);
     });
 
     return { ...tree };
   };
 
-  const dislikeNode = (tree, commentId, token) => {
+  const dislikeNode = (tree, commentId, email) => {
     if (tree.id === commentId) {
-      if(token in tree.dislikers){
-        if(tree.dislikers[token] === true) {
+      if(email in tree.dislikers){
+        if(tree.dislikers[email] === true) {
           tree.dislikes -= 1;
-          tree.dislikers[token]=false;
+          tree.dislikers[email]=false;
           return tree;
         }
       }
       tree.dislikes += 1;
-      tree.dislikers[token]=true;
-      if(token in tree.likers){
-        if(tree.likers[token] === true) {
+      tree.dislikers[email]=true;
+      if(email in tree.likers){
+        if(tree.likers[email] === true) {
           tree.likes -= 1;
-          tree.likers[token]=false;
+          tree.likers[email]=false;
         }
       }
       return tree;
     }
 
     tree.items.map((ob) => {
-      return dislikeNode(ob, commentId, token);
+      return dislikeNode(ob, commentId, email);
     });
 
     return { ...tree };
