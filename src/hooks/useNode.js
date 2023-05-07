@@ -12,7 +12,8 @@ const useNode = () => {
         dislikes: 0,
         likers  : {},
         dislikers: {},
-        flagged: false
+        flagged: false,
+        last_updated: new Date()
       });
 
       return tree;
@@ -33,6 +34,7 @@ const useNode = () => {
       tree.dislikes = 0;
       tree.likers = {};
       tree.dislikers = {};
+      tree.last_updated = new Date();
       return tree;
     }
 

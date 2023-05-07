@@ -62,29 +62,3 @@ app.post('/api/init', (req, res) => {
         res.send(result)
     });
 })
-
-// api to create a new user
-app.post('/api/createuser', (req, res) => {
-    let name = req.body.name;
-    let token = req.body.token;
-
-    db.query("INSERT INTO users (token, name) VALUES (?, ?)", [token, name], (err, result) => {
-        if (err) {
-            console.log(err)
-        }
-        res.send(result)
-    });
-})
-
-// api to return name from token
-app.post('/api/getname', (req, res) => {
-    let token = req.body.token;
-
-    db.query("SELECT name FROM users WHERE token = ?",[token], (err, result) => {
-        if (err) {
-            console.log(err)
-        }
-        res.send(result)
-    });
-})
-
