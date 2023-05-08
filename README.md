@@ -125,10 +125,25 @@ CREATE TABLE `comments`(
 /api/init
 ```
 
+The body of the request should be a JSON object with the following fields:
+
+```
+{
+    "id": "forum id"
+}
+```
+
 #### 2. Get a thread by id
 
 ```
 /api/get
+```
+The body of the request should be a JSON object with the following fields:
+
+```
+{
+    "id": "forum id"
+}
 ```
 
 #### 3. Update a thread
@@ -136,8 +151,7 @@ CREATE TABLE `comments`(
 ```
 /api/create
 ```
-
-All the above endpoints are POST requests. The body of the request should be a JSON object with the following fields:
+The body of the request should be a JSON object with the following fields:
 
 ```
 {
@@ -145,6 +159,9 @@ All the above endpoints are POST requests. The body of the request should be a J
     "commentsjson": "hierarchical tree like structure for comments"
 }
 ```
+
+All the above endpoints are POST requests. 
+
 
 ## Flow Chart
 
