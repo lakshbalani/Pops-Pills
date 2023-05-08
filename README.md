@@ -167,7 +167,7 @@ All the above endpoints are POST requests.
 
 #### User Work Flow
 
-![Image](./Diagrams/user.png)
+![Image](/user.png)
 
 ```
 
